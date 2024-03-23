@@ -1,0 +1,11 @@
+
+.env
+
+.mypy_cache/
+.vscode/
+venv/
+__pycache__/
+
+idea/.
+.idea
+bot.db
