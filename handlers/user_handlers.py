@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from lexicon.lexicon import LEXICON_RU
 from database.orm_query import get_unclosed_shifts
+from services.services import shops_and_legals
 
 router = Router()
 
@@ -20,5 +21,5 @@ async def process_start_command(message: Message):
 async def process_unclosed_command(message: Message, session: AsyncSession):
     unclosed_shifts = await get_unclosed_shifts(session)
     for shift in unclosed_shifts:
-        print(shift.shopindex, shift.cashnum, shift.operday)
-        await message.answer(text=f'Магазин № {shift.shopindex}, касса № {shift.cashnum}, дата смены {shift.operday}')
+        text = f'Магазин № {shops_and_legals["shops"][str(shift.shopindex)]}, не закрыта смена на кассе {shift.cashnum}'
+        await message.answer(text=text)

@@ -19,7 +19,7 @@ from database.models import User, Settings
 # Функция получает список незакрытых смен за текущий день
 async def get_unclosed_shifts(session: AsyncSession) -> Sequence[Row[Any] | RowMapping | Any]:
     query = select(Shifts).where(
-        (Shifts.operday >= date.today() - timedelta(days=1)) & (Shifts.state == 0))
+        (Shifts.operday >= date.today() - timedelta(days=1)) & (Shifts.state == 0)).order_by(Shifts.shopindex)
     shifts = await session.execute(query)
     shifts = shifts.scalars().all()
     return shifts
