@@ -5,6 +5,10 @@ from environs import Env
 @dataclass
 class DatabaseConfig:
     database: str
+    db_host: str
+    db_user: str
+    db_password: str
+
 
 
 @dataclass
@@ -21,7 +25,6 @@ class Config:
 
 
 def load_config(path: str | None = None) -> Config:
-
     env: Env = Env()
     env.read_env()
 
@@ -31,16 +34,15 @@ def load_config(path: str | None = None) -> Config:
             admin_ids=list(map(int, env.list('ADMIN_IDS'))),
         ),
         db=DatabaseConfig(
+            db_host=env('DB_HOST'),
             database=env('DB_URL'),
-            # db_host=env('DB_HOST'),
-            # db_user=env('DB_USER'),
-            # db_password=env('DB_PASSWORD'),
-
+            db_user=env('DB_USER'),
+            db_password=env('DB_PASSWORD')
         ),
         set_operday=DatabaseConfig(
-            host=env('HOST'),
+            db_host=env('HOST'),
             database=env('DB_NAME'),
-            user=env('USER'),
-            password=env('PASSWORD'),
+            db_user=env('USER'),
+            db_password=env('PASSWORD')
         )
     )

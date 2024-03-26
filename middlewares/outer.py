@@ -36,5 +36,5 @@ class DbMiddleware(BaseMiddleware):
             data: Dict[str, Any],
     ) -> Any:
         async with self.session_pool() as op_session:
-            data['op_session'] = op_session
+            data['session'] = op_session
             return await handler(event, data)

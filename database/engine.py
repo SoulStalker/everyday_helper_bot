@@ -6,7 +6,7 @@ from database.models import Base
 config = load_config('.env')
 
 engine = create_async_engine(config.db.database)
-op_engine = create_async_engine(config.set_operday.database)
+op_engine = create_async_engine(config.set_operday.database, echo=True, future=True)
 session_maker = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
 op_session_maker = async_sessionmaker(bind=op_engine, class_=AsyncSession, expire_on_commit=False)
 
