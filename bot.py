@@ -5,6 +5,8 @@ from aiogram import Bot, Dispatcher
 from config_data.config import load_config
 from keyboards.set_menu import set_main_menu
 from handlers import other_handlers, user_handlers
+from database.engine import op_session_maker
+from middlewares.outer import DbMiddleware, ShadowBanMiddleware
 
 
 async def main():
@@ -16,6 +18,11 @@ async def main():
 
     dp.include_router(user_handlers.router)
     dp.include_router(other_handlers.router)
+
+    # Подключается мидлваря для блокировки всех кроме админа
+    dp.update.middleware(ShadowBanMiddleware(config.tg_bot.admin_ids))
+    # Мидлваря для подключения базы данных
+    dp.update.middleware(DbMiddleware(session_pool=op_session_maker))
     
     # Удаляем необработанные обновления
     await bot.delete_webhook(drop_pending_updates=True)

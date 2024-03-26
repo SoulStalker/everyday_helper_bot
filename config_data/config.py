@@ -17,6 +17,7 @@ class TgBot:
 class Config:
     tg_bot: TgBot
     db: DatabaseConfig
+    set_operday: DatabaseConfig
 
 
 def load_config(path: str | None = None) -> Config:
@@ -31,5 +32,15 @@ def load_config(path: str | None = None) -> Config:
         ),
         db=DatabaseConfig(
             database=env('DB_URL'),
+            # db_host=env('DB_HOST'),
+            # db_user=env('DB_USER'),
+            # db_password=env('DB_PASSWORD'),
+
+        ),
+        set_operday=DatabaseConfig(
+            host=env('HOST'),
+            database=env('DB_NAME'),
+            user=env('USER'),
+            password=env('PASSWORD'),
         )
     )
