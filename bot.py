@@ -1,6 +1,8 @@
 import asyncio
 
 from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 
 from config_data.config import load_config
 from keyboards.set_menu import set_main_menu
@@ -11,7 +13,7 @@ from middlewares.outer import DbMiddleware, ShadowBanMiddleware
 
 async def main():
     config = load_config('.env')
-    bot = Bot(token=config.tg_bot.token)
+    bot = Bot(token=config.tg_bot.token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp = Dispatcher()
     # Настраиваем меню бота
     await set_main_menu(bot)
