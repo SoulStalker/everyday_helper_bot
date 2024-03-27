@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from lexicon.lexicon import LEXICON_RU
 from database.orm_query import get_unclosed_shifts
-from services.services import shops_and_legals, messages
+from services.services import shops_and_legals, bot_messages_ids
 
 router = Router()
 
@@ -18,7 +18,7 @@ async def process_start_command(message: Message):
     msg = await message.answer(
         text=LEXICON_RU['/start']
     )
-    messages.setdefault(message.chat.id, []).append(msg.message_id)
+    bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
     await message.delete()
 
 
@@ -30,7 +30,7 @@ async def process_unclosed_command(message: Message, session: AsyncSession, bot:
         text = (f'<b><i>Магазин № {shops_and_legals["shops"][str(shift.shopindex)]}</i></b>,\n'
                 f'<i>не закрыта смена на кассе {shift.cashnum}</i>')
         msg = await message.answer(text=text)
-        messages.setdefault(message.chat.id, []).append(msg.message_id)
+        bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
     await message.delete()
     await process_do_the_chores(bot)
 
@@ -38,9 +38,10 @@ async def process_unclosed_command(message: Message, session: AsyncSession, bot:
 # функция для удаления старых сообщений
 async def process_do_the_chores(bot: Bot):
     await asyncio.sleep(120)
-    for chat in messages.keys():
-        for message_id in messages[chat]:
+    for chat in bot_messages_ids.keys():
+        for message_id in bot_messages_ids[chat]:
             try:
                 await bot.delete_message(chat_id=chat, message_id=message_id)
             except Exception as err:
                 print(err)
+    bot_messages_ids.clear()
