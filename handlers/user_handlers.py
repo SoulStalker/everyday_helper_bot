@@ -26,12 +26,18 @@ async def process_start_command(message: Message):
 @router.message(Command('unclosed'))
 async def process_unclosed_command(message: Message, session: AsyncSession, bot: Bot):
     unclosed_shifts = await get_unclosed_shifts(session)
+    if not unclosed_shifts:
+        msg = await message.answer(text=LEXICON_RU['no_unclosed'])
     for shift in unclosed_shifts:
-        text = (f'<b><i>Магазин № {shops_and_legals["shops"][str(shift.shopindex)]}</i></b>,\n'
-                f'<i>не закрыта смена на кассе {shift.cashnum}</i>')
-        msg = await message.answer(text=text)
-        bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
-    await message.delete()
+        try:
+            text = (f'<b><i>Магазин № {shops_and_legals["shops"][str(shift.shopindex)]}</i></b>,\n'
+                    f'<i>не закрыта смена на кассе {shift.cashnum}</i>')
+            msg = await message.answer(text=text)
+            bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
+        except Exception as err:
+            await asyncio.sleep(1)
+            print(err)
+    # await message.delete()
     await process_do_the_chores(bot)
 
 
