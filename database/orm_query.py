@@ -58,15 +58,13 @@ async def get_results_by_shop(session: AsyncSession):
 
         combined_dict = defaultdict(lambda: {'sum_by_checks': 0, 'checks_count': 0, 'state': set()})
 
-        for shift in results_today:  # Предположим, что у вас есть список shifts, содержащий словари shift
+        for shift in results_today:
             shop_index = shift['shop_index']
             combined_dict[shop_index]['sum_by_checks'] += shift['sum_by_checks']
             combined_dict[shop_index]['checks_count'] += shift['checks_count']
             combined_dict[shop_index]['state'].add(shift['state'])
 
-        # Преобразование defaultdict в обычный словарь
         combined_dict = dict(combined_dict)
-    print(combined_dict)
-    return results_today
+    return combined_dict
 
 

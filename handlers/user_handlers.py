@@ -60,19 +60,22 @@ async def process_results_by_shop_command(message: Message, session: AsyncSessio
     if not shifts:
         msg = await message.answer(text=LEXICON_RU['no_unclosed'])
         bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
-    # for shift in shifts:
-    #     print(shift['shop_index'], shift['cash_num'], shift['num_shift'], shift['operation_day'], shift['state'],
+    for shop_index, data in shifts.items():
+        # print(shop_index, data)
+        # print(shift['shop_index'], shift['cash_num'], shift['num_shift'], shift['state'])
     #           shift['inn'], shift['checks_count'], shift['sum_by_checks'])
-        # text = (f"Отчет за сегодня {shops_and_legals['shops'][str(shift['shop_index'])]}:\n"
-        #         f"Чеки: {shift['checks_count']}\n"
-        #         f"Оборот: {shift['sum_by_checks']} руб.\n")
-        # try:
-        #     print(text)
-        #     msg = await message.answer(text=text)
-        #     bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
-        # except Exception as err:
-        #     await asyncio.sleep(1)
-        #     print("Error:", err)
+        text = (f"Отчет за сегодня {shops_and_legals['shops'][str(shop_index)]}:\n"
+                f"Чеки: {data['checks_count']}\n"
+                f"Оборот: {data['sum_by_checks']:,.0f} руб.".replace(',', ' '))
+        if 0 in data['state']:
+            text += LEXICON_RU['open_state']
+        try:
+            print(text)
+            msg = await message.answer(text=text)
+            bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
+        except Exception as err:
+            await asyncio.sleep(1)
+            print("Error:", err)
     await message.delete()
     await process_do_the_chores(bot)
 
