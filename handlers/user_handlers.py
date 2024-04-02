@@ -40,15 +40,20 @@ async def process_unclosed_command(message: Message, session: AsyncSession, bot:
     unclosed_shifts = await get_unclosed_shifts(session)
     if not unclosed_shifts:
         msg = await message.answer(text=LEXICON_RU['no_unclosed'])
-    for shift in unclosed_shifts:
-        try:
-            text = (f'<b><i>{shops_and_legals["shops"][str(shift.shopindex)]}</i></b>,\n'
-                    f'<i>не закрыта смена на кассе {shift.cashnum}</i>')
-            msg = await message.answer(text=text)
-            bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
-        except Exception as err:
-            await asyncio.sleep(1)
-            print(err)
+        bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
+    if len(unclosed_shifts) > 20:
+        msg = await message.answer(LEXICON_RU['too_many'])
+        bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
+    else:
+        for shift in unclosed_shifts:
+            try:
+                text = (f'<b><i>{shops_and_legals["shops"][str(shift.shopindex)]}</i></b>,\n'
+                        f'<i>не закрыта смена на кассе {shift.cashnum}</i>')
+                msg = await message.answer(text=text)
+                bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
+            except Exception as err:
+                await asyncio.sleep(1)
+                print(err)
     # await message.delete()
     await process_do_the_chores(bot)
 
@@ -61,9 +66,6 @@ async def process_results_by_shop_command(message: Message, session: AsyncSessio
         msg = await message.answer(text=LEXICON_RU['no_unclosed'])
         bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
     for shop_index, data in shifts.items():
-        # print(shop_index, data)
-        # print(shift['shop_index'], shift['cash_num'], shift['num_shift'], shift['state'])
-    #           shift['inn'], shift['checks_count'], shift['sum_by_checks'])
         text = (f"Отчет за сегодня {shops_and_legals['shops'][str(shop_index)]}:\n"
                 f"Чеки: {data['checks_count']}\n"
                 f"Оборот: {data['sum_by_checks']:,.0f} руб.".replace(',', ' '))
