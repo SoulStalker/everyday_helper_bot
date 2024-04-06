@@ -48,7 +48,7 @@ async def process_unclosed_command(message: Message, session: AsyncSession, bot:
         for shift in unclosed_shifts:
             try:
                 text = (f'<b><i>{shops_and_legals["shops"][str(shift.shopindex)]}</i></b>,\n'
-                        f'<i>не закрыта смена на кассе {shift.cashnum}</i>')
+                        f'<i>не закрыта смена на кассе {shift.cashnum} фирма {shops_and_legals["legals"][shift.inn]}</i>')
                 msg = await message.answer(text=text)
                 bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
             except Exception as err:
