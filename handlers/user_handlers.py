@@ -95,10 +95,11 @@ async def process_unclosed_command(message: Message, session: AsyncSession, bot:
                         f'<i>не закрыта смена на кассе {shift.cashnum} фирма {shops_and_legals["legals"][shift.inn]}</i>')
                 msg = await message.answer(text=text)
                 bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
+
             except Exception as err:
                 await asyncio.sleep(1)
                 print(err)
-    # await message.delete()
+    bot_messages_ids.setdefault(message.chat.id, []).append(message.message_id)
     await process_do_the_chores(bot)
 
 
@@ -117,8 +118,8 @@ async def process_results_by_shop_command(message: Message, session: AsyncSessio
             text += LEXICON_RU['open_state']
         try:
             print(text)
-            msg = await message.answer(text=text)
-            bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
+            # msg = await message.answer(text=text)
+            # bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
         except Exception as err:
             await asyncio.sleep(1)
             print("Error:", err)
