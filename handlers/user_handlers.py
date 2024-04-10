@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 
 from aiogram import F, Router, Bot
 from aiogram.filters import Command, CommandStart, StateFilter
@@ -111,15 +112,20 @@ async def process_results_by_shop_command(message: Message, session: AsyncSessio
         msg = await message.answer(text=LEXICON_RU['no_unclosed'])
         bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
     for shop_index, data in shifts.items():
-        text = (f"Отчет за сегодня {shops_and_legals['shops'][str(shop_index)]}:\n"
-                f"Чеки: {data['checks_count']}\n"
-                f"Оборот: {data['sum_by_checks']:,.0f} руб.".replace(',', ' '))
+        if shop_index != 'total_summary':
+            text = (f"Отчет за {datetime.date.today().strftime('%d.%m.%y')} {shops_and_legals['shops'][str(shop_index)]}:\n"
+                    f"Чеки: {data['checks_count']} шт.\n"
+                    f"Оборот: {data['sum_by_checks']:,.0f} руб.".replace(',', ' '))
+        else:
+            text = (f"<strong>Суммарный отчет за {datetime.date.today().strftime('%d.%m.%y')}:</strong>\n"
+                   f"<strong>Чеки: {data['checks_count']} шт.</strong>\n"
+                   f"<strong>Оборот: {data['sum_by_checks']:,.0f} руб.</strong>".replace(',', ' '))
         if 0 in data['state']:
             text += LEXICON_RU['open_state']
         try:
             print(text)
-            # msg = await message.answer(text=text)
-            # bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
+            msg = await message.answer(text=text)
+            bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
         except Exception as err:
             await asyncio.sleep(1)
             print("Error:", err)
