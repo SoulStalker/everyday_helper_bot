@@ -104,12 +104,12 @@ async def process_unclosed_command(message: Message, session: AsyncSession, bot:
     await process_do_the_chores(bot)
 
 
-# Хендлер срабатывает на команду /results_by_shop и выводит список незакрытых смен
+# Хендлер срабатывает на команду /results_by_shop и выводит результаты продаж по магазинам
 @router.message(Command('results_by_shop'))
 async def process_results_by_shop_command(message: Message, session: AsyncSession, bot: Bot):
     shifts = await get_results_by_shop(session)
     if not shifts:
-        msg = await message.answer(text=LEXICON_RU['no_unclosed'])
+        msg = await message.answer(text=LEXICON_RU['no_results'])
         bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
     for shop_index, data in shifts.items():
         if shop_index != 'total_summary':
@@ -133,3 +133,23 @@ async def process_results_by_shop_command(message: Message, session: AsyncSessio
     await process_do_the_chores(bot)
 
 
+# Хендлер срабатывает на команду /total и выводит итоговые результаты дня
+@router.message(Command('total'))
+async def process_total_command(message: Message, session: AsyncSession, bot: Bot):
+    shifts = await get_results_by_shop(session)
+    if not shifts:
+        msg = await message.answer(text=LEXICON_RU['no_results'])
+        bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
+    data = shifts['total_summary']
+    text = (f"<strong>Суммарный отчет за {datetime.date.today().strftime('%d.%m.%y')}:</strong>\n"
+            f"<strong>Чеки: {data['checks_count']} шт.</strong>\n"
+            f"<strong>Оборот: {data['sum_by_checks']:,.0f} руб.</strong>".replace(',', ' '))
+    if 0 in data['state']:
+        text += LEXICON_RU['open_state']
+    try:
+        print(text)
+        msg = await message.answer(text=text)
+    except Exception as err:
+        await asyncio.sleep(1)
+        print("Error:", err)
+    await message.delete()
