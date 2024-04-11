@@ -104,6 +104,28 @@ async def process_unclosed_command(message: Message, session: AsyncSession, bot:
     await process_do_the_chores(bot)
 
 
+# Хендлер срабатывает на команду /unclosed_list и выводит список незакрытых смен
+@router.message(Command('unclosed_list'))
+async def process_unclosed_list_command(message: Message, session: AsyncSession, bot: Bot):
+    unclosed_shifts = await get_unclosed_shifts(session)
+    if not unclosed_shifts:
+        msg = await message.answer(text=LEXICON_RU['no_unclosed'])
+        bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
+    else:
+        text = ''
+        for shift in unclosed_shifts:
+            text += (f'<code>{shops_and_legals["shops"][str(shift.shopindex)]} на кассе {shift.cashnum} фирма'
+                     f' {shops_and_legals["legals"][shift.inn]}</code>\n\n')
+        try:
+            msg = await message.answer(text=text)
+            bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
+        except Exception as err:
+            await asyncio.sleep(1)
+            print(err)
+    bot_messages_ids.setdefault(message.chat.id, []).append(message.message_id)
+    await process_do_the_chores(bot)
+
+
 # Хендлер срабатывает на команду /results_by_shop и выводит результаты продаж по магазинам
 @router.message(Command('results_by_shop'))
 async def process_results_by_shop_command(message: Message, session: AsyncSession, bot: Bot):
@@ -118,8 +140,8 @@ async def process_results_by_shop_command(message: Message, session: AsyncSessio
                     f"Оборот: {data['sum_by_checks']:,.0f} руб.".replace(',', ' '))
         else:
             text = (f"<strong>Суммарный отчет за {datetime.date.today().strftime('%d.%m.%y')}:</strong>\n"
-                   f"<strong>Чеки: {data['checks_count']} шт.</strong>\n"
-                   f"<strong>Оборот: {data['sum_by_checks']:,.0f} руб.</strong>".replace(',', ' '))
+                    f"<strong>Чеки: {data['checks_count']} шт.</strong>\n"
+                    f"<strong>Оборот: {data['sum_by_checks']:,.0f} руб.</strong>".replace(',', ' '))
         if 0 in data['state']:
             text += LEXICON_RU['open_state']
         try:
