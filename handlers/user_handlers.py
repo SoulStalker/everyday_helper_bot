@@ -115,13 +115,15 @@ async def process_unclosed_list_command(message: Message, session: AsyncSession,
         text = ''
         for shift in unclosed_shifts:
             text += (f'<code>{shops_and_legals["shops"][str(shift.shopindex)]} на кассе {shift.cashnum} фирма'
-                     f' {shops_and_legals["legals"][shift.inn]}</code>\n\n')
+                     f' {shops_and_legals["legals"][shift.inn]}</code>\n')
         try:
+            print(text)
             msg = await message.answer(text=text)
             bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
         except Exception as err:
             await asyncio.sleep(1)
             print(err)
+            await message.answer(text=LEXICON_RU['too_long'])
     bot_messages_ids.setdefault(message.chat.id, []).append(message.message_id)
     await process_do_the_chores(bot)
 
