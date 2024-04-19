@@ -10,7 +10,6 @@ class DatabaseConfig:
     db_password: str
 
 
-
 @dataclass
 class TgBot:
     token: str
