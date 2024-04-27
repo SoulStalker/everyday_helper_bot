@@ -39,7 +39,7 @@ class StartSG(StatesGroup):
 
 
 # Это хэндлер, обрабатывающий нажатие инлайн-кнопок
-async def button_clicked(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
+async def button_clicked_2(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
     another_button = dialog_manager.dialog_data.get('another_button')
     dialog_manager.dialog_data.update(another_button=not another_button)
 
@@ -56,11 +56,11 @@ start_dialog = Dialog(
         Button(
             text=Const('Нажми меня!'),
             id='button_1',
-            on_click=button_clicked),
+            on_click=button_clicked_2),
         Button(
             text=Const('И меня нажми!'),
             id='button_2',
-            on_click=button_clicked,
+            on_click=button_clicked_2,
             when='button_status'),
         state=StartSG.start,
         getter=get_button_status,
