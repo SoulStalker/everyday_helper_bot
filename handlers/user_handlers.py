@@ -22,18 +22,6 @@ async def button_clicked(callback: CallbackQuery, button: Button, manager: Dialo
     await callback.message.answer('Кажется, ты нажал на кнопку!')
 
 
-# функция для удаления старых сообщений
-async def process_do_the_chores(bot: Bot):
-    await asyncio.sleep(120)
-    for chat in bot_messages_ids.keys():
-        for message_id in bot_messages_ids[chat]:
-            try:
-                await bot.delete_message(chat_id=chat, message_id=message_id)
-            except Exception as err:
-                print(err)
-    bot_messages_ids.clear()
-
-
 class StartSG(StatesGroup):
     start = State()
 
@@ -101,7 +89,6 @@ async def process_unclosed_command(message: Message, session: AsyncSession, bot:
                 await asyncio.sleep(1)
                 print(err)
     bot_messages_ids.setdefault(message.chat.id, []).append(message.message_id)
-    await process_do_the_chores(bot)
 
 
 # Хендлер срабатывает на команду /unclosed_list и выводит список незакрытых смен
@@ -125,7 +112,6 @@ async def process_unclosed_list_command(message: Message, session: AsyncSession,
             print(err)
             await message.answer(text=LEXICON_RU['too_long'])
     bot_messages_ids.setdefault(message.chat.id, []).append(message.message_id)
-    await process_do_the_chores(bot)
 
 
 # Хендлер срабатывает на команду /results_by_shop и выводит результаты продаж по магазинам
@@ -154,7 +140,6 @@ async def process_results_by_shop_command(message: Message, session: AsyncSessio
             await asyncio.sleep(1)
             print("Error:", err)
     await message.delete()
-    await process_do_the_chores(bot)
 
 
 # Хендлер срабатывает на команду /total и выводит итоговые результаты дня
@@ -171,8 +156,7 @@ async def process_total_command(message: Message, session: AsyncSession, bot: Bo
     if 0 in data['state']:
         text += LEXICON_RU['open_state']
     try:
-        print(text)
-        msg = await message.answer(text=text)
+        await message.answer(text=text)
     except Exception as err:
         await asyncio.sleep(1)
         print("Error:", err)
