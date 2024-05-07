@@ -3,7 +3,7 @@ name: "automate-deploy-my-bot"
 on:
   push:
     branches:
-      - 'master'
+      - 'main'
 
 jobs:
   build_on_push:
