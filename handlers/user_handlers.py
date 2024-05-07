@@ -1,13 +1,9 @@
 import asyncio
 import datetime
 
-from aiogram import F, Router, Bot
+from aiogram import Router
 from aiogram.filters import Command, CommandStart
-from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import Message, CallbackQuery
-from aiogram_dialog import DialogManager, Dialog, Window, StartMode
-from aiogram_dialog.widgets.kbd import Button
-from aiogram_dialog.widgets.text import Const
+from aiogram.types import Message
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
