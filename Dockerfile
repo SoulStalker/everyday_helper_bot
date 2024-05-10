@@ -1,11 +1,18 @@
 FROM python:3.11-slim-bullseye
-LABEL authors="almaz"
 
-ENTRYPOINT ["top", "-b"]
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+
 WORKDIR /app
+
+# Копируем requirements.txt
 COPY requirements.txt .
+
+# Устанавливаем зависимости
 RUN pip install --no-cache -r /app/requirements.txt
-COPY bot /app/bot
+
+# Копируем все файлы, кроме .env
+COPY . /app/
+
+# Запускаем приложение
 CMD ["python", "-m", "bot"]

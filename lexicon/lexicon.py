@@ -6,7 +6,7 @@ LEXICON_COMMANDS_RU: dict[str, str] = {
     '/unclosed': 'Незакрытые смены',
     '/results_by_shop': 'Результаты продаж по магазинам',
     '/total': 'Итоговые результаты дня',
-    'unclosed_list': 'Незакрытые смены одним списком',
+    '/unclosed_list': 'Незакрытые смены одним списком',
 }
 
 LEXICON_RU: dict[str, str] = {

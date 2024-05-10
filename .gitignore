@@ -10,3 +10,4 @@ idea/.
 .idea
 bot.db
 *.json
+docker-compose.yml
