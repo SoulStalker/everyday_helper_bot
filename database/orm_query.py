@@ -28,16 +28,15 @@ async def get_unclosed_shifts(session: AsyncSession) -> Sequence[Row[Any] | RowM
 
 
 # Функция получает список смен с результатами продаж
-async def get_results_by_shop(session: AsyncSession):
+async def get_results_by_shop(session: AsyncSession, report_day=date.today()):
     results_today = []
-
     async with session as async_session:
         stmt = select(Shifts.shopindex, Shifts.cashnum, Shifts.numshift, Shifts.operday, Shifts.state, Shifts.inn,
                       func.count(case((Purchases.cash_operation == 0, Purchases.checksumstart), else_=None)).label('check_count'),
                       func.sum(case((Purchases.operationtype, Purchases.checksumend), (~Purchases.operationtype, -Purchases.checksumend),
                                     else_=None)).label('sum_by_checks'))
 
-        stmt = stmt.join(Purchases).filter(Shifts.operday == date.today(), Purchases.checkstatus == 0)
+        stmt = stmt.join(Purchases).filter(Shifts.operday == report_day, Purchases.checkstatus == 0)
         stmt = stmt.group_by(Shifts.cashnum, Shifts.shopindex, Shifts.numshift, Shifts.operday, Shifts.state, Shifts.inn)
         stmt = stmt.order_by(Shifts.shopindex, Shifts.cashnum)
         result = await async_session.execute(stmt)

@@ -4,9 +4,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram_dialog import setup_dialogs
-
 from config_data.config import load_config
-from handlers.user_handlers import start_dialog
 from keyboards.set_menu import set_main_menu
 from handlers import other_handlers, user_handlers
 from database.engine import op_session_maker
@@ -22,7 +20,6 @@ async def main():
 
     dp.include_router(user_handlers.router)
     dp.include_router(other_handlers.router)
-    dp.include_router(start_dialog)
     setup_dialogs(dp)
 
     # Подключается мидлваря для блокировки всех кроме админа

@@ -4,9 +4,7 @@ import datetime
 from aiogram import Router
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message
-
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from lexicon.lexicon import LEXICON_RU
 from database.orm_query import get_unclosed_shifts, get_results_by_shop
 from services.services import shops_and_legals, bot_messages_ids
@@ -68,18 +66,22 @@ async def process_unclosed_list_command(message: Message, session: AsyncSession)
 
 # Хендлер срабатывает на команду /results_by_shop и выводит результаты продаж по магазинам
 @router.message(Command('results_by_shop'))
-async def process_results_by_shop_command(message: Message, session: AsyncSession):
-    shifts = await get_results_by_shop(session)
+async def process_results_by_shop_command(message: Message, session: AsyncSession, report_day=0):
+    if report_day == 0:
+        report_day = datetime.date.today()
+    else:
+        report_day = datetime.date.today() - datetime.timedelta(days=report_day)
+    shifts = await get_results_by_shop(session, report_day)
     if not shifts:
         msg = await message.answer(text=LEXICON_RU['no_results'])
         bot_messages_ids.setdefault(message.chat.id, []).append(msg.message_id)
     for shop_index, data in shifts.items():
         if shop_index != 'total_summary':
-            text = (f"Отчет за {datetime.date.today().strftime('%d.%m.%y')} {shops_and_legals['shops'][str(shop_index)]}:\n"
+            text = (f"Отчет за {report_day.strftime('%d.%m.%y')} {shops_and_legals['shops'][str(shop_index)]}:\n"
                     f"Чеки: {data['checks_count']} шт.\n"
                     f"Оборот: {data['sum_by_checks']:,.0f} руб.".replace(',', ' '))
         else:
-            text = (f"<strong>Суммарный отчет за {datetime.date.today().strftime('%d.%m.%y')}:</strong>\n"
+            text = (f"<strong>Суммарный отчет за {report_day.strftime('%d.%m.%y')}:</strong>\n"
                     f"<strong>Чеки: {data['checks_count']} шт.</strong>\n"
                     f"<strong>Оборот: {data['sum_by_checks']:,.0f} руб.</strong>".replace(',', ' '))
         if 0 in data['state']:
@@ -94,7 +96,7 @@ async def process_results_by_shop_command(message: Message, session: AsyncSessio
     await message.delete()
 
 
-# Хендлер срабатывает на команду /total и выводит итоговые результаты дня
+# Хендлер срабатывает на команду /total и выводит итоговые результаты дняa
 @router.message(Command('total'))
 async def process_total_command(message: Message, session: AsyncSession):
     shifts = await get_results_by_shop(session)
