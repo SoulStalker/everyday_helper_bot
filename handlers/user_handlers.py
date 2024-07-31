@@ -17,6 +17,11 @@ async def command_start_process(message: Message):
     await message.answer(LEXICON_RU['/start'])
 
 
+@router.message(Command('help'))
+async def process_command_help(message: Message):
+    await message.answer(LEXICON_RU['/help'])
+
+
 # Хендлер срабатывает на команду /unclosed и выводит список незакрытых смен
 @router.message(Command('unclosed'))
 async def process_unclosed_command(message: Message, session: AsyncSession):
@@ -114,4 +119,3 @@ async def process_total_command(message: Message, session: AsyncSession):
     except Exception as err:
         await asyncio.sleep(1)
         print("Error:", err)
-    await message.delete()
